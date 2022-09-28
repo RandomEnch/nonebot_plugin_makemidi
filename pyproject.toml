@@ -2,7 +2,7 @@
 name = "nonebot_plugin_makemidi"
 version = "0.1.0"
 description = "Easy midi maker"
-authors = ["RandomEnch <1048421623@qq.com>"]
+authors = ["RandomEnch <randomench@foxmail.com>"]
 license = "MIT"
 
 [[tool.poetry.source]]
