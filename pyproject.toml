@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "nonebot_plugin_makemidi"
+version = "0.1.0"
+description = "Easy midi maker"
+authors = ["RandomEnch <1048421623@qq.com>"]
+license = "MIT"
+
+[[tool.poetry.source]]
+name = "tsinghua"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/"
+default = true
+
+[tool.poetry.dependencies]
+python = "^3.8"
+nonebot2 = "^2.0.0-beta.4"
+nonebot-adapter-onebot = "^2.0.0-beta.1"
+mido = "*"
+fluidsynth = "*"
+
+[tool.poetry.dev-dependencies]
+nb-cli = "^0.6.0"
+mido = "*"
+fluidsynth = "*"
+midi2audio = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
