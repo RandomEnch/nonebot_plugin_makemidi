@@ -14,8 +14,8 @@ __plugin_meta__ = PluginMetadata(
     乐器代号参照midi乐器列表，不是所有乐器都可用，0为大钢琴
     BPM一般为120，调号一般为C，小调加m，例子：C C# C#m Cb Cm
     指令：
-        #编曲 [乐器代号] [BPM] [调号] [简谱]
-        #编曲 0 120 C 3 5 6 1+ 2+~ 1+ 2+ 3+~ 1+ 6 5 3 1+ 2+ 6~   
+        编曲 [乐器代号] [BPM] [调号] [简谱]
+        编曲 0 120 C 3 5 6 1+ 2+~ 1+ 2+ 3+~ 1+ 6 5 3 1+ 2+ 6~   
         """.strip(),
     extra={
         "unique_name": "make_music",
@@ -23,7 +23,7 @@ __plugin_meta__ = PluginMetadata(
     },
 )
 
-make_music = on_command("#编曲", priority=5, block=True)
+make_music = on_command("编曲", priority=5, block=True)
 
 
 @make_music.handle()
