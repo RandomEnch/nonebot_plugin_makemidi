@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot_plugin_makemidi"
-version = "0.1.2"
+version = "0.1.4"
 description = "Easy midi maker"
 authors = ["RandomEnch <randomench@foxmail.com>"]
 license = "MIT"
@@ -15,6 +15,7 @@ python = "^3.8"
 nonebot2 = "^2.0.0-beta.4"
 nonebot-adapter-onebot = "^2.0.0-beta.1"
 mido = "*"
+midi2audio = "*"
 fluidsynth = "*"
 pydub = "^0.25.1"
 
