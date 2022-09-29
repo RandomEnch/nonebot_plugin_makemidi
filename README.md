@@ -17,7 +17,7 @@ _✨ 基于OneBot适配器的[NoneBot2](https://v2.nonebot.dev/)在线编曲插�
 ## 安装
 在安装完插件本体后，您还需要安装fluidsynth才能正常使用
 
-克隆仓库后，将其中的fluidsynth文件夹放到合适位置并将其bin文件夹添加到path
+下载完后，将其中的fluidsynth文件夹放到合适位置并将其bin文件夹添加到path
 
 - 使用 nb-cli
 
@@ -34,7 +34,8 @@ pip install nonebot_plugin_makemidi
 - 安装fluidsynth
 
 ```
-git clone https://github.com/RandomEnch/nonebot_plugin_makemidi.git
+https://pan.baidu.com/s/1fHljXONT_uGQnW28Ity9Rg?psw=1145
+提取密码：1145
 ```
 
 ## 使用
@@ -44,6 +45,8 @@ git clone https://github.com/RandomEnch/nonebot_plugin_makemidi.git
 乐器代号参照midi乐器列表，不是所有乐器都可用，0为大钢琴
 
 BPM一般为120，调号一般为C，小调加m，例子：`C C# C#m Cb Cm`
+
+实际上，改变调号并不会产生影响
 
 - 以下命令需要加命令前缀 (默认为/)，可自行设置，也可为空
 

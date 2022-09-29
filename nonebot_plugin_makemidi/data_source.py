@@ -1,10 +1,13 @@
 import os
 from pathlib import Path
+from pydub import AudioSegment
 from midi2audio import FluidSynth
 from mido import Message, MidiFile, MidiTrack, MetaMessage, bpm2tempo
 from nonebot.adapters.onebot.v11 import MessageSegment
 
 current_path = Path(__file__).resolve().parent / "resources"
+
+full_tones = ['1', '2', '4', '5', '6']
 
 
 def play_note(note, length, track, bpm=120, base_num=0, delay=0, velocity=1.0, channel=0, tone_change=0):
@@ -39,6 +42,7 @@ def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
     track.append(MetaMessage('set_tempo', tempo=tempo, time=0))
     track.append(MetaMessage('key_signature', key=key_signature))
     for note in notes:
+        check_note = str(note).replace('+', '').replace('-', '').replace('~', '').replace('_', '').replace('#', '').replace('b', '')
         if '~' in note:
             length = 1 + 0.5 * int(str(note).count('~'))
             note = note.replace('~', '')
@@ -48,10 +52,16 @@ def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
         else:
             length = 1
         if '#' in note:
-            tone_change = int(str(note).count('#'))
+            if check_note in full_tones:
+                tone_change = 1
+            else:
+                tone_change = 0
             note = note.replace('#', '')
-        elif 'b' in note:
-            tone_change = -int(str(note).count('b'))
+        elif 'b' in note and check_note in full_tones:
+            if check_note in full_tones:
+                tone_change = -1
+            else:
+                tone_change = 0
             note = note.replace('b', '')
         else:
             tone_change = 0
@@ -68,6 +78,7 @@ def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
 
     mid.save(current_path / f'{qq}.mid')
     midi2wav(qq)
+    high_volume(qq)
     return MessageSegment.record(current_path / f'{qq}.wav')
 
 
@@ -75,3 +86,9 @@ def midi2wav(qq):
     sf_path = current_path / 'gm.sf2'
     s = FluidSynth(sound_font=sf_path)
     s.midi_to_audio(current_path / f'{qq}.mid', current_path / f'{qq}.wav')
+
+
+def high_volume(qq):
+    song = AudioSegment.from_wav(current_path / f'{qq}.wav')
+    song = song + 20
+    song.export(current_path / f'{qq}.wav', format="wav")
