@@ -90,6 +90,10 @@ def play_note(note, length, track, bpm=120, base_num=0, delay=0, velocity=1.0, c
 
 
 def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
+    if os.path.exists(midi_path):
+        pass
+    else:
+        os.mkdir(midi_path)
     try:
         os.remove(midi_path / f'{qq}.mid')
         os.remove(midi_path / f'{qq}.wav')
