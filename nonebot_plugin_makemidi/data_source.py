@@ -6,8 +6,69 @@ from mido import Message, MidiFile, MidiTrack, MetaMessage, bpm2tempo
 from nonebot.adapters.onebot.v11 import MessageSegment
 
 current_path = Path(__file__).resolve().parent / "resources"
+midi_path = current_path / 'midi'
 
-full_tones = ['1', '2', '4', '5', '6']
+
+def signature(key_signature, note, tone_change):
+    if key_signature == 'C' or key_signature == 'Am':
+        pass
+    elif key_signature == 'G' or key_signature == 'Em':
+        tones = [5, 6, 7, 1, 2, 3, 4]
+        note = tones[note - 1]
+        if note == 4:
+            tone_change += 1
+    elif key_signature == 'F' or key_signature == 'Dm':
+        tones = [4, 5, 6, 7, 1, 2, 3]
+        note = tones[note - 1]
+        if note == 7:
+            tone_change -= 1
+    elif key_signature == 'D' or key_signature == 'Bm':
+        tones = [2, 3, 4, 5, 6, 7, 1]
+        note = tones[note - 1]
+        if note == 1 or note == 4:
+            tone_change += 1
+    elif key_signature == 'Bb' or key_signature == 'Gm':
+        tones = [7, 1, 2, 3, 4, 5, 6]
+        note = tones[note - 1]
+        if note == 7 or note == 3:
+            tone_change -= 1
+    elif key_signature == 'A' or key_signature == 'F#m':
+        tones = [6, 7, 1, 2, 3, 4, 5]
+        note = tones[note - 1]
+        if note == 1 or note == 4 or note == 5:
+            tone_change += 1
+    elif key_signature == 'Eb' or key_signature == 'Cm':
+        tones = [3, 4, 5, 6, 7, 1, 2]
+        note = tones[note - 1]
+        if note == 7 or note == 3 or note == 6:
+            tone_change -= 1
+    elif key_signature == 'E' or key_signature == 'C#m':
+        tones = [3, 4, 5, 6, 7, 1, 2]
+        note = tones[note - 1]
+        if note == 1 or note == 4 or note == 5 or note == 2:
+            tone_change += 1
+    elif key_signature == 'Ab' or key_signature == 'Fm':
+        tones = [6, 7, 1, 2, 3, 4, 5]
+        note = tones[note - 1]
+        if note == 7 or note == 3 or note == 6 or note == 2:
+            tone_change -= 1
+    elif key_signature == 'B' or key_signature == 'G#m' or key_signature == 'Cb':
+        tones = [7, 1, 2, 3, 4, 5, 6]
+        note = tones[note - 1]
+        if note == 1 or note == 4 or note == 5 or note == 2 or note == 6:
+            tone_change += 1
+    elif key_signature == 'C#' or key_signature == 'Db' or key_signature == 'A#m' or key_signature == 'Bbm':
+        tones = [1, 2, 3, 4, 5, 6, 7]
+        note = tones[note - 1]
+        tone_change += 1
+    elif key_signature == 'F#' or key_signature == 'D#m' or key_signature == 'Gb':
+        tones = [4, 5, 6, 7, 1, 2, 3]
+        note = tones[note - 1]
+        if note != 7:
+            tone_change += 1
+    else:
+        pass
+    return note, tone_change
 
 
 def play_note(note, length, track, bpm=120, base_num=0, delay=0, velocity=1.0, channel=0, tone_change=0):
@@ -30,8 +91,8 @@ def play_note(note, length, track, bpm=120, base_num=0, delay=0, velocity=1.0, c
 
 def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
     try:
-        os.remove(current_path / f'{qq}.mid')
-        os.remove(current_path / f'{qq}.wav')
+        os.remove(midi_path / f'{qq}.mid')
+        os.remove(midi_path / f'{qq}.wav')
     except:
         pass
     mid = MidiFile()
@@ -42,7 +103,6 @@ def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
     track.append(MetaMessage('set_tempo', tempo=tempo, time=0))
     track.append(MetaMessage('key_signature', key=key_signature))
     for note in notes:
-        check_note = str(note).replace('+', '').replace('-', '').replace('~', '').replace('_', '').replace('#', '').replace('b', '')
         if '~' in note:
             length = 1 + 0.5 * int(str(note).count('~'))
             note = note.replace('~', '')
@@ -52,16 +112,10 @@ def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
         else:
             length = 1
         if '#' in note:
-            if check_note in full_tones:
-                tone_change = 1
-            else:
-                tone_change = 0
+            tone_change = 1
             note = note.replace('#', '')
-        elif 'b' in note and check_note in full_tones:
-            if check_note in full_tones:
-                tone_change = -1
-            else:
-                tone_change = 0
+        elif 'b' in note:
+            tone_change = -1
             note = note.replace('b', '')
         else:
             tone_change = 0
@@ -74,21 +128,26 @@ def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
         else:
             note = int(note)
             base_sum = 0
+        # 小调
+        if 'm' in key_signature:
+            if note == 3 or note == 6 or note == 7:
+                tone_change -= 1
+        note, tone_change = signature(key_signature, note, tone_change)
         play_note(note, length, track, bpm, base_sum, tone_change=tone_change)
 
-    mid.save(current_path / f'{qq}.mid')
+    mid.save(midi_path / f'{qq}.mid')
     midi2wav(qq)
     high_volume(qq)
-    return MessageSegment.record(current_path / f'{qq}.wav')
+    return MessageSegment.record(midi_path / f'{qq}.wav')
 
 
 def midi2wav(qq):
-    sf_path = current_path / 'gm.sf2'
+    sf_path = midi_path / 'gm.sf2'
     s = FluidSynth(sound_font=sf_path)
-    s.midi_to_audio(current_path / f'{qq}.mid', current_path / f'{qq}.wav')
+    s.midi_to_audio(midi_path / f'{qq}.mid', midi_path / f'{qq}.wav')
 
 
 def high_volume(qq):
-    song = AudioSegment.from_wav(current_path / f'{qq}.wav')
+    song = AudioSegment.from_wav(midi_path / f'{qq}.wav')
     song = song + 20
-    song.export(current_path / f'{qq}.wav', format="wav")
+    song.export(midi_path / f'{qq}.wav', format="wav")
