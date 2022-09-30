@@ -144,7 +144,7 @@ def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
 def midi2wav(qq):
     sf_path = midi_path / 'gm.sf2'
     s = FluidSynth(sound_font=sf_path)
-    s.midi_to_audio(midi_path / f'{qq}.mid', midi_path / f'{qq}.wav')
+    s.midi_to_audio(current_path / f'{qq}.mid', midi_path / f'{qq}.wav')
 
 
 def high_volume(qq):
