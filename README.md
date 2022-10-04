@@ -16,9 +16,15 @@ _✨ 基于OneBot适配器的[NoneBot2](https://v2.nonebot.dev/)在线编曲插�
 
 ## 安装
 
-在安装完插件本体后，您还需要安装fluidsynth才能正常使用
++ 注意：
+  > 在安装完插件本体后，您还需要安装fluidsynth才能正常使用
+  >
+  > 下载fluidsynth后解压到合适位置，将其bin文件夹的路径添加到环境变量path中
+  >
+  > 为使适配器能发送音频，你还需要安装ffmpeg，方法与fluidsynth相同
+  >
+  > 详见 [go-cqhttp文档](https://docs.go-cqhttp.org/guide/quick_start.html#%E5%AE%89%E8%A3%85-ffmpeg)
 
-下载完后，将其中的fluidsynth文件夹放到合适位置并将其bin文件夹添加到path
 
 + 方式一 使用 pip
   > 1.pip 安装库
@@ -29,7 +35,6 @@ _✨ 基于OneBot适配器的[NoneBot2](https://v2.nonebot.dev/)在线编曲插�
   > ```
   > https://pan.baidu.com/s/1fHljXONT_uGQnW28Ity9Rg?psw=1145
   > 提取密码：1145
-  > 下载后解压到合适位置，将其bin文件夹的路径添加到环境变量path中
   > ```
 
 + 方式二 手动安装
@@ -46,7 +51,6 @@ _✨ 基于OneBot适配器的[NoneBot2](https://v2.nonebot.dev/)在线编曲插�
   > ```
   > https://pan.baidu.com/s/1fHljXONT_uGQnW28Ity9Rg?psw=1145
   > 提取密码：1145
-  > 下载后解压到合适位置，将其bin文件夹的路径添加到环境变量path中
   > ```
   > 4.复制插件本体到 Nonebot 插件文件夹中
 
