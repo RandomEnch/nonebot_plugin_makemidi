@@ -75,18 +75,26 @@ def play_note(note, length, track, bpm=120, base_num=0, delay=0, velocity=1.0, c
     meta_time = 60 * 60 * 10 / bpm
     major_notes = [0, 2, 2, 1, 2, 2, 2, 1]
     base_note = 60
-    if tone_change == 0:
-        note = base_note + base_num * 12 + sum(major_notes[0:note])
-    elif tone_change > 0:
-        note = base_note + base_num * 12 + sum(major_notes[0:note]) + tone_change
-    elif tone_change < 0:
-        note = base_note + base_num * 12 + sum(major_notes[0:note]) + tone_change
-    track.append(
-        Message('note_on', note=note, velocity=round(64 * velocity),
-                time=round(delay * meta_time), channel=channel))
-    track.append(
-        Message('note_off', note=note, velocity=round(64 * velocity),
-                time=round(meta_time * length), channel=channel))
+    if note != 0 and 1 <= note <= 7:
+        if tone_change == 0:
+            note = base_note + base_num * 12 + sum(major_notes[0:note])
+        elif tone_change > 0:
+            note = base_note + base_num * 12 + sum(major_notes[0:note]) + tone_change
+        elif tone_change < 0:
+            note = base_note + base_num * 12 + sum(major_notes[0:note]) + tone_change
+        track.append(
+            Message('note_on', note=note, velocity=round(64 * velocity),
+                    time=round(delay * meta_time), channel=channel))
+        track.append(
+            Message('note_off', note=note, velocity=round(64 * velocity),
+                    time=round(meta_time * length), channel=channel))
+    elif note == 0:
+        track.append(
+            Message('note_on', note=note, velocity=round(64 * velocity),
+                    time=round(delay * meta_time), channel=channel))
+        track.append(
+            Message('note_off', note=note, velocity=round(64 * velocity),
+                    time=round(meta_time * length), channel=channel))
 
 
 def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
@@ -108,10 +116,10 @@ def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
     track.append(MetaMessage('key_signature', key=key_signature))
     for note in notes:
         if '~' in note:
-            length = 1 + 0.5 * int(str(note).count('~'))
+            length = 1 + int(str(note).count('~'))
             note = note.replace('~', '')
         elif '_' in note:
-            length = 1 - 0.25 * int(str(note).count('_'))
+            length = 1 * 0.5 ** int(str(note).count('_'))
             note = note.replace('_', '')
         else:
             length = 1
