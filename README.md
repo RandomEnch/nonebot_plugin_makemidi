@@ -20,28 +20,42 @@ _✨ 基于OneBot适配器的[NoneBot2](https://v2.nonebot.dev/)在线编曲插�
 
 下载完后，将其中的fluidsynth文件夹放到合适位置并将其bin文件夹添加到path
 
-- 使用 nb-cli
++ 方式一 使用 pip
+  > 1.pip 安装库
+  > ```
+  > pip install nonebot_plugin_makemidi
+  > ```
+  > 2.安装fluidsynth
+  > ```
+  > https://pan.baidu.com/s/1fHljXONT_uGQnW28Ity9Rg?psw=1145
+  > 提取密码：1145
+  > 下载后解压到合适位置，将其bin文件夹的路径添加到环境变量path中
+  > ```
 
-```
-nb plugin install nonebot_plugin_makemidi
-```
++ 方式二 手动安装
+  > 1.克隆本仓库
+  > ```
+  > git clone https://github.com/RandomEnch/nonebot_plugin_makemidi.git
+  > ```
+  > 2.安装依赖 requirements.txt
+  > ```
+  > cd nonebot_plugin_makemidi
+  > pip install -r requirements.txt
+  > ```
+  > 3.安装fluidsynth
+  > ```
+  > https://pan.baidu.com/s/1fHljXONT_uGQnW28Ity9Rg?psw=1145
+  > 提取密码：1145
+  > 下载后解压到合适位置，将其bin文件夹的路径添加到环境变量path中
+  > ```
+  > 4.复制插件本体到 Nonebot 插件文件夹中
 
-- 使用 pip
-
-```
-pip install nonebot_plugin_makemidi
-```
-
-- 安装fluidsynth
-
-```
-https://pan.baidu.com/s/1fHljXONT_uGQnW28Ity9Rg?psw=1145
-提取密码：1145
-```
 
 ## 使用
 
-仅支持简谱表达，升八度用+，降八度用-，延音用~，短音用_，可叠加，空格分隔，支持升降号
+仅支持简谱表达，升八度用+，降八度用-，延音用~，短音用_，可叠加，空格分隔
+
+升半音用#，降半音用b，休止符用0，不可叠加，空格分隔，顺序不影响
 
 乐器代号参照midi乐器列表，不是所有乐器都可用，0为大钢琴
 
@@ -52,7 +66,7 @@ BPM一般为120，调号一般为C，小调加m，例子：`C C# C#m Cb Cm`
 ```
 编曲 [乐器代号] [BPM] [调号] [简谱]
 编曲 0 120 C 3 5 6 1+ 2+~ 1+ 2+ 3+~ 1+ 6 5 3 1+ 2+ 6~  
-编曲 0 170 C 6~~ 1+~~ 2+# 3+~~ 5# 6 1+ 2+ 1+ 2+__ 2+ 3+~~ 5+ 4+# 4+ 2+# 2+ 1+ 7 6 7 1+ 2+ 2+#~~ 3~~ 6~~ 1+~~ 2+# 3+~~ 5# 6 1+ 2+ 1+ 2+__ 2+ 3+~~ 5+ 4+# 4+ 2+# 3+ 4+ 4+# 5+ 5+# 5+# 6+ 6+ 7+~~
+编曲 0 170 C 8~ 9+~ 2+# 3+ 0 5# 6 1+ 2+ 1+ 2+_ 2+ 3+ 0 5+ 4+# 4+ 2+# 2+ 1+ 7 6 7 1+ 2+ 2+#~ 3~ 6~ 1+~ 2+# 3+ 0 5# 6 1+ 2+ 1+ 2+_ 2+ 3+ 0 5+ 4+# 4+ 2+# 3+ 4+ 4+# 5+ 5+# 5+# 6+ 6+ 7+~~
 ```
 
 [![sX2zp.png](https://s1.328888.xyz/2022/09/28/sX2zp.png)](https://imgloc.com/i/sX2zp)
