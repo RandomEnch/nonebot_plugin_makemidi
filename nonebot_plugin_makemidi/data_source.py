@@ -78,7 +78,7 @@ def parser_notes(note, key_signature):
     elif '_' in note:
         length = 1 * 0.5 ** int(str(note).count('_'))
         note = note.replace('_', '')
-    elif '·' in note:
+    elif '.' in note:
         length = 1 + 0.5 * int(str(note).count('.'))
         note = note.replace('.', '')
     else:
@@ -179,7 +179,8 @@ def multi_tracks(qq, tracks, bpm=120, key_signature='C'):
             simple = simple[1:]
         channel = int(simple.split()[0])
         program = int(simple.split()[1])
-        notes = simple.split()[2:]
+        velocity = float(simple.split()[2])
+        notes = simple.split()[3:]
         track = MidiTrack()
         mid.tracks.append(track)
         track.append(MetaMessage('set_tempo', tempo=tempo, time=0))
@@ -188,7 +189,7 @@ def multi_tracks(qq, tracks, bpm=120, key_signature='C'):
         for note in notes:
             note, length, tone_change, base_sum = parser_notes(note, key_signature)
             note, tone_change = signature(key_signature, note, tone_change)
-            play_note(note, length, track, bpm, base_sum, tone_change=tone_change, channel=channel)
+            play_note(note, length, track, bpm, base_sum, tone_change=tone_change, channel=channel, velocity=velocity)
 
     mid.save(midi_path / f'{qq}.mid')
     midi2wav(qq)

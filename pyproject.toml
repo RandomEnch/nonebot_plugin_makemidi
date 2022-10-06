@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot_plugin_makemidi"
-version = "0.1.10"
+version = "0.1.11"
 description = "Easy midi maker"
 authors = ["RandomEnch <randomench@foxmail.com>"]
 license = "MIT"
