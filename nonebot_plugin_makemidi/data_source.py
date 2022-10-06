@@ -71,6 +71,43 @@ def signature(key_signature, note, tone_change):
     return note, tone_change
 
 
+def parser_notes(note, key_signature):
+    if '~' in note:
+        length = 1 + int(str(note).count('~'))
+        note = note.replace('~', '')
+    elif '_' in note:
+        length = 1 * 0.5 ** int(str(note).count('_'))
+        note = note.replace('_', '')
+    elif '·' in note:
+        length = 1 + 0.5 * int(str(note).count('.'))
+        note = note.replace('.', '')
+    else:
+        length = 1
+    if '#' in note:
+        tone_change = 1
+        note = note.replace('#', '')
+    elif 'b' in note:
+        tone_change = -1
+        note = note.replace('b', '')
+    else:
+        tone_change = 0
+    if '+' in note:
+        base_sum = int(str(note).count('+'))
+        note = int(note.replace('+', ''))
+    elif '-' in note:
+        base_sum = -int(str(note).count('-'))
+        note = int(note.replace('-', ''))
+    else:
+        note = int(note)
+        base_sum = 0
+    # 小调
+    if 'm' in key_signature:
+        if note == 3 or note == 6 or note == 7:
+            tone_change -= 1
+
+    return note, length, tone_change, base_sum
+
+
 def play_note(note, length, track, bpm=120, base_num=0, delay=0, velocity=1.0, channel=0, tone_change=0):
     meta_time = 60 * 60 * 10 / bpm
     major_notes = [0, 2, 2, 1, 2, 2, 2, 1]
@@ -115,37 +152,43 @@ def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
     track.append(MetaMessage('set_tempo', tempo=tempo, time=0))
     track.append(MetaMessage('key_signature', key=key_signature))
     for note in notes:
-        if '~' in note:
-            length = 1 + int(str(note).count('~'))
-            note = note.replace('~', '')
-        elif '_' in note:
-            length = 1 * 0.5 ** int(str(note).count('_'))
-            note = note.replace('_', '')
-        else:
-            length = 1
-        if '#' in note:
-            tone_change = 1
-            note = note.replace('#', '')
-        elif 'b' in note:
-            tone_change = -1
-            note = note.replace('b', '')
-        else:
-            tone_change = 0
-        if '+' in note:
-            base_sum = int(str(note).count('+'))
-            note = int(note.replace('+', ''))
-        elif '-' in note:
-            base_sum = -int(str(note).count('-'))
-            note = int(note.replace('-', ''))
-        else:
-            note = int(note)
-            base_sum = 0
-        # 小调
-        if 'm' in key_signature:
-            if note == 3 or note == 6 or note == 7:
-                tone_change -= 1
+        note, length, tone_change, base_sum = parser_notes(note, key_signature)
         note, tone_change = signature(key_signature, note, tone_change)
         play_note(note, length, track, bpm, base_sum, tone_change=tone_change)
+
+    mid.save(midi_path / f'{qq}.mid')
+    midi2wav(qq)
+    high_volume(qq)
+    return MessageSegment.record(midi_path / f'{qq}.wav')
+
+
+def multi_tracks(qq, tracks, bpm=120, key_signature='C'):
+    if os.path.exists(midi_path):
+        pass
+    else:
+        os.mkdir(midi_path)
+    try:
+        os.remove(midi_path / f'{qq}.mid')
+        os.remove(midi_path / f'{qq}.wav')
+    except:
+        pass
+    mid = MidiFile(type=1)
+    tempo = bpm2tempo(bpm)
+    for simple in tracks:
+        if simple[0] == ' ':
+            simple = simple[1:]
+        channel = int(simple.split()[0])
+        program = int(simple.split()[1])
+        notes = simple.split()[2:]
+        track = MidiTrack()
+        mid.tracks.append(track)
+        track.append(MetaMessage('set_tempo', tempo=tempo, time=0))
+        track.append(MetaMessage('key_signature', key=key_signature))
+        track.append(Message('program_change', channel=channel, program=program, time=0))
+        for note in notes:
+            note, length, tone_change, base_sum = parser_notes(note, key_signature)
+            note, tone_change = signature(key_signature, note, tone_change)
+            play_note(note, length, track, bpm, base_sum, tone_change=tone_change, channel=channel)
 
     mid.save(midi_path / f'{qq}.mid')
     midi2wav(qq)
