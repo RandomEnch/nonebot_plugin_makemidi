@@ -78,6 +78,15 @@ def parser_notes(note, key_signature):
     elif '_' in note:
         length = 1 * 0.5 ** int(str(note).count('_'))
         note = note.replace('_', '')
+    elif '*' in note:
+        length = 1 * 1/3 ** int(str(note).count('*'))
+        note = note.replace('*', '')
+    elif '%' in note:
+        length = 1 * 2/3 ** int(str(note).count('%'))
+        note = note.replace('%', '')
+    elif '$' in note:
+        length = 1 * 0.75 ** int(str(note).count('$'))
+        note = note.replace('$', '')
     elif '.' in note:
         length = 1 + 0.5 * int(str(note).count('.'))
         note = note.replace('.', '')
