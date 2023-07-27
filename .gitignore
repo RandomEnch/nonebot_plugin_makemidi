@@ -1,3 +1,4 @@
 dist/
 poetry.lock
 .idea/
+nonebot_plugin_makemidi/test.py

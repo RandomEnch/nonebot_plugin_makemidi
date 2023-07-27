@@ -9,7 +9,11 @@ current_path = Path(__file__).resolve().parent / "resources"
 midi_path = current_path / 'midi'
 
 
-def signature(key_signature, note, tone_change):
+# 调号转换
+def signature(key_signature, note, tone_change=0):
+    if note == 0:
+        return note, tone_change
+    src_note = note
     if key_signature == 'C' or key_signature == 'Am':
         pass
     elif key_signature == 'G' or key_signature == 'Em':
@@ -68,32 +72,41 @@ def signature(key_signature, note, tone_change):
             tone_change += 1
     else:
         pass
+    if note < src_note:
+        tone_change += 12
     return note, tone_change
 
 
 def parser_notes(note, key_signature):
+    # 延音
     if '~' in note:
         length = 1 + int(str(note).count('~'))
         note = note.replace('~', '')
+    # 半音
     elif '_' in note:
         length = 1 * 0.5 ** int(str(note).count('_'))
         note = note.replace('_', '')
+    # 附点
     elif '.' in note:
         length = 1 + 0.5 * int(str(note).count('.'))
         note = note.replace('.', '')
     else:
         length = 1
+    # 升半调
     if '#' in note:
         tone_change = 1
         note = note.replace('#', '')
+    # 降半调
     elif 'b' in note:
         tone_change = -1
         note = note.replace('b', '')
     else:
         tone_change = 0
+    # 升八度
     if '+' in note:
         base_sum = int(str(note).count('+'))
         note = int(note.replace('+', ''))
+    # 降八度
     elif '-' in note:
         base_sum = -int(str(note).count('-'))
         note = int(note.replace('-', ''))
@@ -115,9 +128,7 @@ def play_note(note, length, track, bpm=120, base_num=0, delay=0, velocity=1.0, c
     if note != 0 and 1 <= note <= 7:
         if tone_change == 0:
             note = base_note + base_num * 12 + sum(major_notes[0:note])
-        elif tone_change > 0:
-            note = base_note + base_num * 12 + sum(major_notes[0:note]) + tone_change
-        elif tone_change < 0:
+        elif tone_change != 0:
             note = base_note + base_num * 12 + sum(major_notes[0:note]) + tone_change
         track.append(
             Message('note_on', note=note, velocity=round(64 * velocity),
@@ -125,6 +136,7 @@ def play_note(note, length, track, bpm=120, base_num=0, delay=0, velocity=1.0, c
         track.append(
             Message('note_off', note=note, velocity=round(64 * velocity),
                     time=round(meta_time * length), channel=channel))
+    # 休止符
     elif note == 0:
         track.append(
             Message('note_on', note=note, velocity=round(64 * velocity),
@@ -197,12 +209,14 @@ def multi_tracks(qq, tracks, bpm=120, key_signature='C'):
     return MessageSegment.record(midi_path / f'{qq}.wav')
 
 
+# MIDI转WAV
 def midi2wav(qq):
     sf_path = current_path / 'gm.sf2'
     s = FluidSynth(sound_font=sf_path)
     s.midi_to_audio(midi_path / f'{qq}.mid', midi_path / f'{qq}.wav')
 
 
+# 增加音量
 def high_volume(qq):
     song = AudioSegment.from_wav(midi_path / f'{qq}.wav')
     song = song + 20
