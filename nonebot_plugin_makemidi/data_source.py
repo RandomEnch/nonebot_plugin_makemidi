@@ -121,8 +121,7 @@ def parser_notes(note, key_signature):
     return note, length, tone_change, base_sum
 
 
-def play_note(note, length, track, bpm=120, base_num=0, delay=0, velocity=1.0, channel=0, tone_change=0):
-    meta_time = 60 * 60 * 10 / bpm
+def play_note(note, length, track, base_num=0, delay=0, velocity=1.0, channel=0, tone_change=0, ticks_per_beat=480):
     major_notes = [0, 2, 2, 1, 2, 2, 2, 1]
     base_note = 60
     if note != 0 and 1 <= note <= 7:
@@ -132,18 +131,18 @@ def play_note(note, length, track, bpm=120, base_num=0, delay=0, velocity=1.0, c
             note = base_note + base_num * 12 + sum(major_notes[0:note]) + tone_change
         track.append(
             Message('note_on', note=note, velocity=round(64 * velocity),
-                    time=round(delay * meta_time), channel=channel))
+                    time=round(delay * ticks_per_beat), channel=channel))
         track.append(
             Message('note_off', note=note, velocity=round(64 * velocity),
-                    time=round(meta_time * length), channel=channel))
+                    time=round(ticks_per_beat * length), channel=channel))
     # 休止符
     elif note == 0:
         track.append(
             Message('note_on', note=note, velocity=round(64 * velocity),
-                    time=round(delay * meta_time), channel=channel))
+                    time=round(delay * ticks_per_beat), channel=channel))
         track.append(
             Message('note_off', note=note, velocity=round(64 * velocity),
-                    time=round(meta_time * length), channel=channel))
+                    time=round(ticks_per_beat * length), channel=channel))
 
 
 def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
@@ -166,7 +165,7 @@ def make_midi(qq, notes, bpm=120, program=0, key_signature='C'):
     for note in notes:
         note, length, tone_change, base_sum = parser_notes(note, key_signature)
         note, tone_change = signature(key_signature, note, tone_change)
-        play_note(note, length, track, bpm, base_sum, tone_change=tone_change)
+        play_note(note, length, track, base_sum, tone_change=tone_change, ticks_per_beat=mid.ticks_per_beat)
 
     mid.save(midi_path / f'{qq}.mid')
     midi2wav(qq)
@@ -201,7 +200,7 @@ def multi_tracks(qq, tracks, bpm=120, key_signature='C'):
         for note in notes:
             note, length, tone_change, base_sum = parser_notes(note, key_signature)
             note, tone_change = signature(key_signature, note, tone_change)
-            play_note(note, length, track, bpm, base_sum, tone_change=tone_change, channel=channel, velocity=velocity)
+            play_note(note, length, track, base_sum, tone_change=tone_change, channel=channel, velocity=velocity, ticks_per_beat=mid.ticks_per_beat)
 
     mid.save(midi_path / f'{qq}.mid')
     midi2wav(qq)
