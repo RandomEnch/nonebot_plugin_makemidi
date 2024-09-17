@@ -3,7 +3,7 @@ from nonebot.plugin import PluginMetadata
 from nonebot.params import Command, CommandArg
 from nonebot.adapters.onebot.v11 import MessageEvent, Message, Bot, MessageSegment
 
-from .data_source import make_midi, multi_tracks
+from .utils import create_midi, parse_arg, midi_path
 
 __plugin_meta__ = PluginMetadata(
     name="在线编曲",
@@ -36,26 +36,10 @@ async def _(event: MessageEvent, arg: Message = CommandArg()):
         await make_music.finish("未输入参数")
     qq = str(event.user_id)
     arg = arg.extract_plain_text()
-    if '>' not in arg:
-        arg = arg.split()
-        program = int(arg[0])
-        bpm = int(arg[1])
-        key_signature = arg[2]
-        notes = arg[3:]
-        try:
-            result = make_midi(qq, notes, program=program, bpm=bpm, key_signature=key_signature)
-        except Exception as e:
-            result = f"编曲失败，参数错误：{e}"
+    result = parse_arg(arg, qq)
+    if result:
+        await make_music.finish(result)
     else:
-        arg = arg.replace('\n', '').split('>')
-        bpm = int(arg[0].split()[0])
-        key_signature = arg[0].split()[1]
-        tracks = arg[1:]
-        try:
-            result = multi_tracks(qq, tracks, bpm=bpm, key_signature=key_signature)
-        except Exception as e:
-            result = f"编曲失败，参数错误：{e}"
-
-    await make_music.finish(result)
+        await make_music.finish(MessageSegment.record(midi_path / f'{qq}.wav'))
 
 

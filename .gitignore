@@ -1,4 +1,7 @@
+__pycache__/
 dist/
 poetry.lock
 .idea/
-nonebot_plugin_makemidi/test.py
+test.py
+venv/
+midi/*
