@@ -145,38 +145,35 @@ def high_volume(filename):
 def parse_arg(arg, qq):
     result = ''
     if '>' not in arg:
-        arg = arg.split(maxsplit=3)
-        tracks = [
-            {
-                'track': 0,  # 轨道 0
-                'instrument': int(arg[0]),  # 乐器
-                'velocity': 1,  # 力度
-                'jianpu': arg[3]
-            },
-        ]
-        bpm = int(arg[1])
-        key_signature = arg[2]
         try:
+            arg = arg.split(maxsplit=3)
+            tracks = [
+                {
+                    'track': 0,  # 轨道 0
+                    'instrument': int(arg[0]),  # 乐器
+                    'velocity': 1,  # 力度
+                    'jianpu': arg[3]
+                },
+            ]
+            bpm = int(arg[1])
+            key_signature = arg[2]
             create_midi(bpm, key_signature, tracks, f'{qq}.mid')
         except Exception as e:
             result = f"编曲失败，参数错误：{e}"
     else:
-        arg = arg.replace('\n', '').split('>')
-        bpm = int(arg[0].split()[0])
-        key_signature = arg[0].split()[1]
-        tracks = []
-        for i in range(1, len(arg)):
-            track = arg[i].split(maxsplit=3)
-            if len(track) < 4:
-                result = f"编曲失败，参数错误：{arg[i]}"
-                return result
-            tracks.append({
-                'track': int(track[0]),  # 轨道
-                'instrument': int(track[1]),  # 乐器
-                'velocity': float(track[2]),  # 力度
-                'jianpu': track[3]
-            })
         try:
+            arg = arg.replace('\n', '').split('>')
+            bpm = int(arg[0].split()[0])
+            key_signature = arg[0].split()[1]
+            tracks = []
+            for i in range(1, len(arg)):
+                track = arg[i].split(maxsplit=3)
+                tracks.append({
+                    'track': int(track[0]),  # 轨道
+                    'instrument': int(track[1]),  # 乐器
+                    'velocity': float(track[2]),  # 力度
+                    'jianpu': track[3]
+                })
             create_midi(bpm, key_signature, tracks, f'{qq}.mid')
         except Exception as e:
             result = f"编曲失败，参数错误：{e}"
