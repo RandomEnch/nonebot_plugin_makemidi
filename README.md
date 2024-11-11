@@ -17,34 +17,16 @@ _✨ 基于OneBot适配器的[NoneBot2](https://v2.nonebot.dev/)在线编曲插�
 ## 安装
 
 + 注意：
-  > 在安装完插件本体后，您还需要安装fluidsynth才能正常使用
+  > 在安装完插件本体后，您还需要安装ffmpeg和fluidsynth才能正常使用
   >
-  > 为使适配器能发送音频，你还需要安装ffmpeg，详见 [go-cqhttp文档](https://docs.go-cqhttp.org/guide/quick_start.html#%E5%AE%89%E8%A3%85-ffmpeg)
-
-+ 安装ffmpeg和fluidsynth
-  > 1.Windows安装
-  > ```
-  > 下载fluidsynth后解压到合适位置，将其bin文件夹的路径添加到环境变量path中
-  > https://pan.baidu.com/s/1fHljXONT_uGQnW28Ity9Rg?psw=1145
-  > 提取密码：1145
-  > ```
-  > 2.Linux安装
-  > ```
-  > # 以Ubuntu/Debian为例
-  > sudo apt update
-  > sudo apt install -y ffmpeg fluidsynth
-  > ```
+  > 为使适配器能发送音频，你需要安装ffmpeg，详见 [go-cqhttp文档](https://docs.go-cqhttp.org/guide/quick_start.html#%E5%AE%89%E8%A3%85-ffmpeg)
 
 + 方式一 使用 pip
   > 1.pip 安装库
   > ```
   > pip install nonebot_plugin_makemidi
   > ```
-  > 2.安装fluidsynth
-  > ```
-  > https://pan.baidu.com/s/1fHljXONT_uGQnW28Ity9Rg?psw=1145
-  > 提取密码：1145
-  > ```
+  > 2.安装ffmpeg和fluidsynth
 
 + 方式二 手动安装
   > 1.克隆本仓库
@@ -56,12 +38,24 @@ _✨ 基于OneBot适配器的[NoneBot2](https://v2.nonebot.dev/)在线编曲插�
   > cd nonebot_plugin_makemidi
   > pip install -r requirements.txt
   > ```
-  > 3.安装fluidsynth
-  > ```
-  > https://pan.baidu.com/s/1fHljXONT_uGQnW28Ity9Rg?psw=1145
-  > 提取密码：1145
-  > ```
+  > 3.安装ffmpeg和fluidsynth
   > 4.复制插件本体到 Nonebot 插件文件夹中
+
+- 安装ffmpeg和fluidsynth
+  > 1.Windows安装
+  > 
+  > 下载fluidsynth后解压到合适位置，将其bin文件夹的路径添加到环境变量path中
+  > 
+  > 这里提供我使用的版本的[下载地址](https://pan.baidu.com/s/1fHljXONT_uGQnW28Ity9Rg?psw=1145)
+  > 
+  > 你也可以直接去[项目页](https://github.com/FluidSynth/fluidsynth)下载
+  > 
+  > 2.Linux安装
+  > ```
+  > # 以Ubuntu/Debian为例
+  > sudo apt update
+  > sudo apt install -y ffmpeg fluidsynth
+  > ```
 
 
 ## 使用
