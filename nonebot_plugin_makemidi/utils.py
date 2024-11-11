@@ -1,4 +1,6 @@
 from pathlib import Path
+from typing import Union
+
 from pydub import AudioSegment
 from midi2audio import FluidSynth
 from midiutil import MIDIFile
@@ -27,8 +29,14 @@ if not midi_path.exists():
     midi_path.mkdir()
 
 
-# 简谱音符到 MIDI 音符的映射
-def jianpu_to_midi_note(jianpu, key):
+def jianpu_to_midi_note(jianpu: str, key: str) -> Union[int, None]:
+    """
+    将简谱音符转换为 MIDI 音符
+
+    :param jianpu: 简谱音符列表
+    :param key: 调号
+    :return: MIDI 音符(0-127)
+    """
     # 基础音符
     base_note = jianpu_to_midi.get(jianpu[0], None)
     if base_note is None:
@@ -58,63 +66,80 @@ def jianpu_to_midi_note(jianpu, key):
     return midi_note
 
 
-# 解析简谱
-def parse_jianpu(jianpu_str):
+def parse_jianpu(jianpu_str: str) -> list[list[dict[str, Union[str, int]]]]:
+    """
+    解析简谱字符串
+
+    :param jianpu_str: 简谱字符串
+    :return: [[{'note': '1', 'duration': 1}, {'note': '2', 'duration': 1},...], [...],...]
+    """
     notes = []
+    # 将简谱字符串按空格分割
     jianpu_parts = jianpu_str.split()
     for part in jianpu_parts:
-        note_info = {
-            'note': part,  # 音符
-            'duration': 1  # 默认时值
-        }
-        # 处理特殊符号
-        note_info['duration'] *= max(2 * int((part.count('~') + 1) / 2), 1)  # 点划线
-        note_info['duration'] /= 2 ** part.count('_')  # 半音符
-        note_info['duration'] *= 1.5 ** part.count('.')  # 附点符
-        if '*' in part:
-            note_info['duration'] = 1 / 3
-        if '%' in part:
-            note_info['duration'] = 2 / 3
-        if '$' in part:
-            note_info['duration'] = 3 / 4
-        notes.append(note_info)
+        chords = part.split('|')  # 使用 "|" 分割和弦
+        chord_notes = []
+
+        for chord_part in chords:
+            note_info = {
+                'note': chord_part,  # 单个音符或和弦中的单个音
+                'duration': 1  # 默认时值
+            }
+            # 处理时值符号
+            note_info['duration'] *= max(2 * int((chord_part.count('~') + 1) / 2), 1)  # 点划线
+            note_info['duration'] *= 1.5 ** chord_part.count('.')  # 附点符
+            note_info['duration'] *= 0.5 ** chord_part.count('_')  # 半音符
+            note_info['duration'] *= (1 / 3) ** chord_part.count('*')  # 三分符
+            note_info['duration'] *= (2 / 3) ** chord_part.count('%')  # 三分之二符
+            note_info['duration'] *= 0.75 ** chord_part.count('$')  # 四分之三符
+            chord_notes.append(note_info)
+
+        notes.append(chord_notes)  # 添加和弦信息，和弦是一组音符
     return notes
 
 
-# 生成 MIDI 文件
-def create_midi(bpm, key, tracks, filename='output.mid'):
-    # 创建一个 MIDI 文件
+def create_midi(bpm: int, key: str, tracks: list[dict[str, Union[str, int]]], filename: str = 'output.mid') -> None:
+    """
+    创建 MIDI 文件
+
+    :param bpm: BPM
+    :param key: 调号
+    :param tracks: 音轨列表
+    :param filename: 文件名
+    :return: None
+    """
     midi = MIDIFile(len(tracks))
 
-    # 解析每个音轨
     for track_data in tracks:
         track_num = track_data['track']
         instrument = track_data['instrument']
-        velocity = int(track_data['velocity'] * 127)  # 转换力度到 0-127 范围
+        velocity = int(track_data['velocity'] * 127)
         jianpu = track_data['jianpu']
 
-        time = 0  # 开始时间
+        time = 0
         midi.addTempo(track_num, time, bpm)
         midi.addProgramChange(track_num, track_num, time, instrument)
 
-        # 解析简谱
         notes = parse_jianpu(jianpu)
 
-        # 添加音符到 MIDI
-        for note_info in notes:
-            note = note_info['note']
-            duration = note_info['duration']
+        for note_group in notes:
+            max_duration = 0
 
-            if note == '0':  # 休止符
-                time += duration  # 跳过添加音符
-                continue
+            for note_info in note_group:
+                note = note_info['note']
+                duration = note_info['duration']
+                max_duration = max(max_duration, duration)
 
-            midi_note = jianpu_to_midi_note(note, key)
-            if midi_note is None:
-                continue  # 跳过非法音符
+                if note == '0':
+                    continue  # 跳过休止符
 
-            midi.addNote(track_num, track_num, midi_note, time, duration, velocity)
-            time += duration  # 移动到下一个音符的位置
+                midi_note = jianpu_to_midi_note(note, key)
+                if midi_note is None:
+                    continue  # 跳过非法音符
+
+                midi.addNote(track_num, track_num, midi_note, time, duration, velocity)
+
+            time += max_duration  # 根据和弦的最大时值进行时间推进
 
     # 保存 MIDI 文件
     outfile = midi_path / filename
@@ -124,8 +149,8 @@ def create_midi(bpm, key, tracks, filename='output.mid'):
     midi2wav(file_name)
 
 
-# MIDI转WAV
-def midi2wav(filename):
+def midi2wav(filename: str) -> None:
+    """将 MIDI 文件转换为 WAV 文件"""
     sf_path = resources_path / 'gm.sf2'
     s = FluidSynth(sound_font=sf_path)
     midi_file = midi_path / f'{filename}.mid'
@@ -134,16 +159,24 @@ def midi2wav(filename):
     high_volume(filename)
 
 
-# 增加音量
-def high_volume(filename):
+def high_volume(filename: str) -> None:
+    """提高 WAV 文件的音量"""
     song = AudioSegment.from_wav(midi_path / f'{filename}.wav')
     song = song + 10
     song.export(midi_path / f'{filename}.wav', format="wav")
 
 
 # 解析参数
-def parse_arg(arg, qq):
+def parse_arg(arg: str, qq: str) -> Union[None, str]:
+    """
+    解析参数
+
+    :param arg: 参数字符串
+    :param qq: QQ号
+    :return: 结果字符串
+    """
     result = ''
+    # 单音轨
     if '>' not in arg:
         try:
             arg = arg.split(maxsplit=3)
@@ -155,11 +188,12 @@ def parse_arg(arg, qq):
                     'jianpu': arg[3]
                 },
             ]
-            bpm = int(arg[1])
-            key_signature = arg[2]
+            bpm = int(arg[1])  # BPM
+            key_signature = arg[2]  # 调号
             create_midi(bpm, key_signature, tracks, f'{qq}.mid')
         except Exception as e:
             result = f"编曲失败，参数错误：{e}"
+    # 多音轨
     else:
         try:
             arg = arg.replace('\n', '').split('>')
