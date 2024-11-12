@@ -22,6 +22,51 @@ jianpu_to_midi = {
     '7': 11  # B
 }
 
+# 时值到简谱音长修饰符的映射
+duration_map = {
+    0.9375: "_...",       # 15/16拍
+    0.875: "_..",         # 7/8拍
+    0.75: "_.",           # 3/4拍
+    0.5: "_",             # 八分音符
+    0.4375: "__..",       # 7/16拍
+    0.375: "__.",         # 3/8拍
+    0.25: "__",           # 十六分音符
+    0.21875: "___..",     # 7/32拍
+    0.1875: "___.",       # 3/16拍
+    0.125: "___",         # 三十二分音符
+    0.109375: "____..",   # 7/64拍
+    0.09375: "____.",     # 3/32拍
+    0.0625: "____",       # 六十四分音符
+    1: "",                # 四分音符
+    1.5: ".",             # 附点音符
+    1.75: "..",           # 双附点
+    1.875: "...",         # 三附点
+    2: "~",               # 二分音符
+    2.5: "~.",            # 2.5拍
+    2.75: "~..",          # 2.75拍
+    3: "~~",              # 3拍
+    3.5: "~~.",           # 3.5拍
+    3.75: "~~..",         # 3.75拍
+    3.875: "~~...",       # 3.875拍
+    4: "~~~",             # 全音符
+    4.5: "~~~.",          # 4.5拍
+    4.75: "~~~..",        # 4.75拍
+    4.875: "~~~...",      # 4.875拍
+    5: "~~~~",            # 5拍
+    5.5: "~~~~.",         # 5.5拍
+    5.75: "~~~~..",       # 5.75拍
+    5.875: "~~~~...",     # 5.875拍
+    6: "~~~~~",           # 6拍
+    6.5: "~~~~~.",        # 6.5拍
+    6.75: "~~~~~..",      # 6.75拍
+    6.875: "~~~~~...",    # 6.875拍
+    7: "~~~~~~",          # 7拍
+    7.5: "~~~~~~.",       # 7.5拍
+    7.75: "~~~~~~..",     # 7.75拍
+    7.875: "~~~~~~...",   # 7.875拍
+    8: "~~~~~~~"          # 倍全音符
+}
+
 # 文件保存路径
 resources_path = Path(__file__).resolve().parent / "resources"
 midi_path = resources_path / 'midi'
@@ -66,7 +111,27 @@ def jianpu_to_midi_note(jianpu: str, key: str) -> Union[int, None]:
     return midi_note
 
 
-def parse_jianpu(jianpu_str: str) -> list[list[dict[str, Union[str, int]]]]:
+def get_duration_from_modifiers(chord_part: str) -> float:
+    """
+    根据修饰符获取时值
+
+    :param chord_part: 单个音符或和弦中的单个音
+    :return: 时值
+    """
+    # 统计每种符号的数量
+    blanks = chord_part.count('_')  # 空白符数量
+    tildes = chord_part.count('~')  # 双音符数量
+    dots = chord_part.count('.')  # 附点符数量
+
+    # 遍历 duration_map 并寻找匹配的组合
+    for dur, mod in duration_map.items():
+        if mod.count('_') == blanks and mod.count('~') == tildes and mod.count('.') == dots:
+            return dur  # 找到匹配的时值
+
+    return 1.0  # 没有匹配项则返回默认时值 1
+
+
+def parse_jianpu(jianpu_str: str) -> list[list[dict[str, Union[str, float]]]]:
     """
     解析简谱字符串
 
@@ -74,24 +139,18 @@ def parse_jianpu(jianpu_str: str) -> list[list[dict[str, Union[str, int]]]]:
     :return: [[{'note': '1', 'duration': 1}, {'note': '2', 'duration': 1},...], [...],...]
     """
     notes = []
-    # 将简谱字符串按空格分割
-    jianpu_parts = jianpu_str.split()
+    jianpu_parts = jianpu_str.split()  # 分割简谱字符串
     for part in jianpu_parts:
         chords = part.split('|')  # 使用 "|" 分割和弦
         chord_notes = []
 
         for chord_part in chords:
+            duration = get_duration_from_modifiers(chord_part)  # 解析修饰符
+
             note_info = {
-                'note': chord_part,  # 单个音符或和弦中的单个音
-                'duration': 1  # 默认时值
+                'note': chord_part,      # 单个音符或和弦中的单个音
+                'duration': duration  # 根据修饰符匹配的时值
             }
-            # 处理时值符号
-            note_info['duration'] *= max(2 * int((chord_part.count('~') + 1) / 2), 1)  # 点划线
-            note_info['duration'] *= 1.5 ** chord_part.count('.')  # 附点符
-            note_info['duration'] *= 0.5 ** chord_part.count('_')  # 半音符
-            note_info['duration'] *= (1 / 3) ** chord_part.count('*')  # 三分符
-            note_info['duration'] *= (2 / 3) ** chord_part.count('%')  # 三分之二符
-            note_info['duration'] *= 0.75 ** chord_part.count('$')  # 四分之三符
             chord_notes.append(note_info)
 
         notes.append(chord_notes)  # 添加和弦信息，和弦是一组音符
@@ -123,7 +182,7 @@ def create_midi(bpm: int, key: str, tracks: list[dict[str, Union[str, int]]], fi
         notes = parse_jianpu(jianpu)
 
         for note_group in notes:
-            max_duration = 0
+            max_duration = 10.0
 
             for note_info in note_group:
                 note = note_info['note']
