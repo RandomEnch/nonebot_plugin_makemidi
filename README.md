@@ -39,6 +39,7 @@ _✨ 基于OneBot适配器的[NoneBot2](https://v2.nonebot.dev/)在线编曲插�
   > pip install -r requirements.txt
   > ```
   > 3.安装ffmpeg和fluidsynth
+  > 
   > 4.复制插件本体到 Nonebot 插件文件夹中
 
 + 安装fluidsynth
@@ -78,10 +79,10 @@ BPM一般为120，调号一般为C，小调加m，例子：`C C# C#m Cb Cm`
 提供了一个将MIDI文件转为编曲指令的脚本，可以将MIDI文件转换为简谱指令，详见[midi2jianpu.py](https://github.com/RandomEnch/nonebot_plugin_makemidi/blob/master/midi2jianpu.py)(使用前先安装 pretty_midi 和 mido 库)
 
 > 注意：
-
-- 因为未编写音符间隔的判断，上一个音符的末尾和下一个音符的开头是连续的，可能会导致音长听起来过短，可以通过延长上一个音符的时间来解决
-
-- 和弦只用于两个音符同时发声的情况（长短可以不一样），不支持一个音符发声到中途时另一个音符发声的情况，可以通过减短当前音符的持续时间来实现
+> 
+> - 因为未编写音符间隔的判断，上一个音符的末尾和下一个音符的开头是连续的，可能会导致音长听起来过短，可以通过延长上一个音符的时间来解决
+> 
+> - 和弦只用于两个音符同时发声的情况（长短可以不一样），不支持一个音符发声到中途时另一个音符发声的情况，可以通过减短当前音符的持续时间来实现
 
 ## 指令
 
