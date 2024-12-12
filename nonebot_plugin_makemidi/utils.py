@@ -182,7 +182,7 @@ def create_midi(bpm: int, key: str, tracks: list[dict[str, Union[str, int]]], fi
         notes = parse_jianpu(jianpu)
 
         for note_group in notes:
-            max_duration = 10.0
+            max_duration = 0
 
             for note_info in note_group:
                 note = note_info['note']
